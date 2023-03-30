@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>音声認識メモ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  </head>
+  <body>
+    <main>
+      <h2>音声メモ</h2>
+      <p>
+        音声データを Google
+        のサーバに送信してテキスト化されたものがリスト形式になる。
+      </p>
+      <button type="button" class="btn btn-success start">音声認識開始</button>
+      <button type="button" class="btn btn-success stop">終了</button>
+      <input type="text" class="edit-input" style="display:none;">
+      <button type="button" class="btn btn-primary save" style="display:none;">保存</button>
+      <ul class="output"></ul>
+    </main>
+    <script>
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = "ja";
+      recognition.continuous = true;
+      recognition.onresult = ({ results }) => {
+        const output = document.querySelector(".output");
+        const listItem = document.createElement("li");
+        listItem.textContent = results[0][0].transcript;
+        const editButton = document.createElement("button");
+        editButton.textContent = "編集";
+        editButton.style="padding: 4px 8px; font-size: 12px";
+        editButton.className = "btn btn-info edit";
+        listItem.appendChild(editButton);
+        output.appendChild(listItem);
+      };
+
+      const startButton = document.querySelector(".start");
+      startButton.addEventListener("click", () => {
+        recognition.start();
+      });
+      const stopButton = document.querySelector(".stop");
+      stopButton.addEventListener("click", () => {
+        recognition.stop();
+      });
+
+      const editInput = document.querySelector(".edit-input");
+      const saveButton = document.querySelector(".save");
+      let currentItem;
+
+      document.body.addEventListener("click", (e) => {
+        if (e.target.classList.contains("edit")) {
+          currentItem = e.target.parentNode;
+          editInput.value = currentItem.firstChild.textContent;
+          editInput.style.display = "inline-block";
+          saveButton.style.display = "inline-block";
+          e.target.style.display = "none";
+        }
+        if (e.target.classList.contains("save")) {
+          currentItem.firstChild.textContent = editInput.value;
+          editInput.style.display = "none";
+          saveButton.style.display = "none";
+          currentItem.querySelector(".edit").style.display = "inline-block";
+        }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  </body>
+</html>
